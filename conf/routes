@@ -1,0 +1,17 @@
+# Routes
+# This file defines all application routes (Higher priority routes first)
+# ~~~~
+
+# Home page
+GET     /                               controllers.Application.index()
+GET     /initGame                       controllers.Application.initGame(gameName: String ?= null, userName: String ?= null)
+GET     /impressum                      controllers.StaticApplication.impressum() 
+GET     /contact                        controllers.StaticApplication.contact()
+GET     /rules                          controllers.StaticApplication.rules()
+GET     /highscore                      controllers.Application.getHighScore()
+GET     /sendcontact                    controllers.StaticApplication.sendMail(lastname: String ?= null, firstname: String ?= null, email: String ?= null, subject: String ?= null, text: String ?= null)
+GET     /tell                           controllers.StaticApplication.tellaFriend(String ?= null, email: String ?= null)
+GET     /game                           controllers.Application.game(gameName: String ?= null, userName: String ?= null)
+
+# Map static resources from the /public folder to the /assets URL path
+GET     /assets/*file               controllers.Assets.at(path="/public", file)

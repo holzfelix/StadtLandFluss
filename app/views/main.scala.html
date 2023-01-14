@@ -1,0 +1,120 @@
+@(title: String)(content: Html)
+
+<!DOCTYPE html>
+
+<html>
+    <head>
+        <title>@title</title>
+        <!-- Bootstrap import -->
+        <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css">
+        <!-- Fontawesome import -->
+        <link href="//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css" rel="stylesheet">
+        <!-- Eigene CSS -->
+        <link rel="stylesheet" media="screen" href="@routes.Assets.at("stylesheets/main.css")">
+        <link rel="stylesheet" media="screen" href="@routes.Assets.at("stylesheets/chat.css")">
+        <link rel="shortcut icon" type="image/png" href="@routes.Assets.at("images/favicon.png")">
+        <!-- JQuery import -->
+        <script src="//code.jquery.com/jquery-1.11.0.min.js"></script>
+        <!-- Bootstrap JS import -->
+        <script src="//netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js"></script>
+        <!-- Import eigenes JS -->
+        <script src='@routes.Assets.at("javascripts/main.js")'></script> 
+
+        <!-- Font -->
+        <link href='http://fonts.googleapis.com/css?family=Macondo+Swash+Caps' rel='stylesheet' type='text/css'>
+    </head>
+    <body>
+        <div class="design">
+            <div class="wrapper">
+                <div class="container-fluid">
+                    @content
+                </div>
+            </div>
+        </div>
+        <div id="footer">
+            <div class="container-fluid" id="innerfooter">
+                <div class="row">
+                    <div class="col-md-6">
+                    </div>
+                    <div class="col-md-6">
+                        <span id="smilies"><span class="emoticon_tongue"></span>
+                            <span class="emoticon_smile"></span><span class="emoticon_frown"></span><span class="emoticon_gasp"></span></span><span id="smiliesbutton" class="glyphicon glyphicon-cog"></span> | <a href="/">start</a> | <a class="rulesclick" href="#" target="_self">rules</a> | <a id="tellafriend" href="#" target="_self">tell a friend</a> | <a id="showhighscorebutton" href="#" target="_self">highscore</a> | <a href="#" id="contactclick">contact</a> | <a href="#" id="impressumclick">impressum</a>
+                    </div>
+                </div>
+                
+                <div class="row tellafriend">
+                    <div class="col-md-6">
+                        <br>
+                        <form method="get" action="" id="tellafriendform" >
+                            <div class="input-group">
+                                <input class="form-control" name="von" id="von" type="text" placeholder="Absender" required>
+                                <span class="input-group-btn dividing"></span>
+                                <input class="form-control" name="email" id="email" type="text" placeholder="Empfänger" required>
+                                <span class="input-group-btn"><input class="btn btn-success" type="submit" value="Tell a friend" /></span>
+                            </div>
+                        </form>
+                        <script type="text/javascript">
+                            $("#tellafriendform").submit(function() {
+                                $.ajax({
+                                    type: "GET",
+                                    url: "@routes.StaticApplication.tellaFriend()",
+                                    data: "von=" + $("#von").val() + "&email=" + $("#email").val(),
+                                    success: function(msg)
+                                    {   
+                                        alert("Wir haben deinen Freund benachrichtigt");
+                                        $(".tellafriend").slideToggle(600);
+                                        $("#von").val("");
+                                        $("#email").val("");
+                                    }
+                                });
+                                return false;
+                            });
+                        </script>
+                    </div>
+                    <div class="col-md-6"></div>
+                </div>
+                
+                <div class="row">
+                    <div class="col-md-12">
+                        <div id="rules"></div>
+                        <div id="highscoreout">
+                            <h2>HighScore</h2>
+                            <br>
+                            <table class="table table-condensed highscoretable">
+                            <tr class="success">
+                                <th>Position</th>
+                                <th>User</th>
+                                <th>Punkte</th>
+                                <th>Datum</th>
+                            </tr>
+                            <tr></tr>
+                        </table>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="row contact"></div>
+                
+                <div class="row impressum"></div>
+                
+                <!-- Scrollup button -->
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="back-top">
+                            <a href="#" class="btn btn-default">Scroll up</a>
+                            <script type="text/javascript">
+                                // scroll body to 0px 
+                                $('.back-top a').click(function () {
+                                    $('body,html').animate({
+                                        scrollTop: 0
+                                    }, 800);
+                                    return false;
+                                });
+                            </script>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </body>
+</html>

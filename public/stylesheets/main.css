@@ -1,0 +1,142 @@
+body{
+    background-color: #404040;
+}
+.clear{
+    clear: both;
+}
+.design{
+    width: 100%;
+    margin: auto;
+    padding-top: 2%;
+    background: url("/assets/images/bg.jpg");
+    background-size: 100% auto;
+}
+.wrapper{
+    width: 90%;
+    margin: auto;
+    color: #404040;
+    padding: 2%;
+}
+#footer{
+    width: 100%;
+    text-align: right;
+    padding-top: 3%;
+    padding-bottom: 3%;
+    border-top: 4px solid #000;
+    background-color: #404040;
+}
+#smilies{
+    display: none;
+}
+#smiliesbutton{
+    display: none;
+}
+#rules{
+    display: none;
+    text-align: left;
+    color: white;
+}
+#innerfooter{
+    width: 90%;
+    margin: auto;
+}
+
+.haftung li{
+    padding-bottom: 12px;
+}
+h1{
+    font-family: 'Macondo Swash Caps', cursive;
+    font-size: 60px;
+    padding-bottom : 40px;
+}
+#endround{
+    display: none;
+}
+.gameTable{
+    display: none;
+}
+#notenoughusersP{
+    padding: 10px;
+    -webkit-border-radius: 5px;
+    -moz-border-radius: 5px;
+    border-radius: 5px;
+    box-shadow: 0px 0px 5px #888888;
+}
+#top{
+    display: none;
+}
+.chat{
+    overflow: auto;
+    height: 250px;
+    padding-left: 8px;
+}
+
+/* Punkte zähler in den Spalten */
+.point-container {
+    position: relative;
+    i {
+        color: #fffff;
+    }
+}
+.point-counter {   
+    float: right;
+    background-color: #5cb85c;
+    color: #fff;
+    border-radius: 3px;
+    padding: 1px 3px;
+    font: 10px Verdana;
+}
+
+.userpoint-counter {   
+    position: absolute;
+    top: 3px;
+    right: 20px;
+    background-color: rgba(212, 19, 13, 1);
+    color: #fff;
+    border-radius: 3px;
+    padding: 1px 3px;
+    font: 10px Verdana;
+}
+#spielerListe{
+    display: none;
+}
+
+.dividing{
+    width: 0px;
+}
+
+.tellafriend{
+    display: none;
+}
+#highscore{
+    display: none;
+}
+.contact{
+    display: none;
+    color: white;
+    text-align: left;
+    padding-top: 30px;
+}
+.impressum{
+    display: none;
+    color: white;
+    text-align: left;
+    padding-top: 30px;
+}
+#highscoreout{
+    display: none;
+    text-align: left;
+}
+#highscoreout h2{
+    color: white;
+}
+
+
+/* Scroll UP Button */
+.back-top{
+    padding-top: 30px;
+    position: fixed;
+    bottom: 60px;
+    right:60px;
+    text-align: left;
+}

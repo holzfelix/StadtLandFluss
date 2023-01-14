@@ -1,0 +1,212 @@
+@(gameName: String, userName: String)
+
+@main("Stadt Land Fluss") {
+<!-- TEST -->
+<!-- Spielfeld Tabelle -->
+<div class="row">
+    <div class="col-md-10">
+        <div id="notenoughusers"><br>
+            <p id="notenoughusersP" class="bg-primary">Das Spiel beginnt sobald min. 2 User angemeldet sind</p>
+        </div>
+        <div id="top">
+            <h2>Buchstabe: <span id="buchstabe"></span><span id="counter"></span></h2>
+            <br>
+        </div>
+        <table class="table table-striped table-hover gameTable">
+            <tr>
+                <th>Stadt</th>
+                <th>Land</th>
+                <th>Fluss</th>
+                <th>Name</th>
+                <th>Beruf</th>
+                <th>Pflanze</th>
+                <th class="success">Punkte</th>
+            </tr>
+            <tr></tr>
+        </table>
+        <button class="btn btn-success" id="endround">Runde Beenden</button>
+        <button class="btn btn-info" id="highscore">Ab in den Highscore</button>
+
+    </div>
+    <!-- Spielfeld Ende -->
+
+    <!-- Chat Bereich -->
+    <div class="col-md-2">
+        <h2>CHAT </h2>
+        <br>
+        <input class="form-control" id="userName" name="userName" value="@userName" type="hidden" />
+        <div class="input-group">
+            <input id="chattext" name="chattext" type="text" placeholder="Chat" class="form-control" />
+            <span class="input-group-btn"><button class="btn btn-success" id="chatMessage" type="button">Send!</button></span>
+        </div>
+        <br>
+        <div class="chat">
+            <div class="logon"><i class="fa fa-refresh fa-spin"></i> Please Wait. Logging in progess ...</div>
+        </div><!-- Hier Landet der Chat Verlauf -->
+        <!-- Chat ENDE -->
+        <!-- Spieler Liste + deren Punkte -->
+        <br><br>
+        Spielname: <span id="gameName">@gameName</span>
+        <br><br>
+        <div id="spielerListe">
+            <b>Spieler (<span id="countplayers"></span>):</b><br>
+            <ul id="usertable"></ul>
+        </div>
+        <!-- ENDE -->  
+        <audio>
+            <source src='@routes.Assets.at("sounds/klingeln.mp3")'>
+        </audio>
+    </div>
+</div>
+
+<!-- JS Datei mit Gui Manipulierendem Code + sonstige Auslagerungen -->
+<script src='@routes.Assets.at("javascripts/guimanipulating.js")'></script>     
+<script type="text/javascript">
+
+    // Socket Funktionen
+    var stadt, land, fluss, name, beruf, pflanze;
+    var gameSocket;
+    $(function() {
+        var WS = window['MozWebSocket'] ? MozWebSocket : WebSocket;
+        var gameSocket = new WS("@routes.Application.game(userName, gameName).webSocketURL(request)");
+
+        // -----------------------------------------------------
+        // Chat Nachricht
+        // -----------------------------------------------------
+        var sendMessage = function() {
+            gameSocket.send(JSON.stringify(
+                    {action: "chat", gamename: $("#gameName").text(), text: $("#chattext").val(), user: $("#userName").val()}
+            ));
+            $("#chattext").val('');
+        };
+
+        var receiveEvent = function(event) {
+            var data = JSON.parse(event.data);
+            //*************
+            // Chat receive
+            //*************
+            if (data.text !== undefined) {
+                jsontext = data.text;
+                finalText = getSmilies(jsontext);
+                if (data.user === $("#userName").val()) {
+                    $('.logon').slideUp("slow");
+                    $(".chat").append("<span class='bubble'><strong>" + data.user + ":</strong> " + finalText + "</span>");
+                    document.getElementsByTagName("audio")[0].play();
+                } else {
+                    $(".chat").append("<span class='bubble2'><strong>" + data.user + ":</strong> " + finalText + "</span>");
+                    document.getElementsByTagName("audio")[0].play();
+                }
+                $("#countplayers").html(data.usercount);
+            }
+
+            //*************
+            // Spiel Starten
+            // Spielfläche nur einblenden wenn wirklich mindestens zwei spieler eingeloggt sind
+            // Wenn während des Spiels ein neuer Spieler hinzukommt wird die aktuelle Zeile gelöscht
+            //*************
+            if (data.action === "starting") {
+                starting();
+                renderUserListPOINTS(data.userlist, data.userListPoints);
+                $('#spielerListe').slideDown("slow"); // Blendet die SpielerListe ein
+            }
+
+            //*************
+            // Runden Punkte der User vergeben
+            //*************
+            if (data.type === "sendroundpoints" && data.type !== undefined) {
+                updateRoundPoints($("#userName").val(), data.user, data.rundenpunkte, data.stadtpunkte, data.landpunkte, data.flusspunkte, data.namepunkte, data.berufpunke, data.pflanzepunkte, data.roundpoints, data.userListPoints, data.userlist);
+                updateUserCounts();
+            }
+
+            //*************
+            // Beendet eine Spielrunde bei allen Spielteilnehmern
+            //*************
+            if (data.action === "endround") {
+                if (data.user !== $("#userName").val()) {
+                    sendRoundREST();
+                    replaceEndTableRow();
+                    newTableRow();
+                }
+            }
+            if (data.action !== "endroundrest" && data.buchstabe !== undefined) {
+                $("#buchstabe").text(data.buchstabe);
+                updateRoundPoints($("#userName").val(), data.user, data.rundenpunkte, data.stadtpunkte, data.landpunkte, data.flusspunkte, data.namepunkte, data.berufpunke, data.pflanzepunkte, data.roundpoints, data.userListPoints, data.userlist);
+            }
+            chatScrollDown();
+        };
+
+        var chathandle = function(e) {
+            e.preventDefault();
+            sendMessage();
+            gameSocket.onmessage = receiveEvent;
+        };
+
+        // Chat absenden wenn man enter klickt oder wenn man den Button anklickt
+        $("#chattext").enterKey(function(e) {
+            chathandle(e);
+            chatScrollDown();
+        });
+
+        $("#chatMessage").click(function(e) {
+            chathandle(e);
+            chatScrollDown(); // Beim Absenden neuer Nachrichten nach unten ScrollenNach unten Scrollen
+        });
+
+        // -----------------------------------------------------
+        // HighScore
+        // -----------------------------------------------------
+        var sendHighscore = function() {
+            gameSocket.send(JSON.stringify(
+                    {action: "highscore", gamename: $("#gameName").text(), user: $("#userName").val()}));
+        };
+
+        // In den Highscore eintragen
+        $("#highscore").click(function(e) {
+            sendHighscore();
+        });
+
+        // -----------------------------------------------------
+        // Beendet die Runde!
+        // -----------------------------------------------------
+        var sendRoundREST = function() {
+            gameSocket.send(JSON.stringify(
+                    {action: "endroundrest", buchstabe: $("#buchstabe").text(), gamename: $("#gameName").text(), user: $("#userName").val(), stadt: $("#stadt").val(),
+                        land: $("#land").val(), fluss: $("#fluss").val(), name: $("#name").val(), beruf: $("#beruf").val(), pflanze: $("#pflanze").val()}
+            ));
+        };
+        var sendRound = function() {
+            gameSocket.send(JSON.stringify(
+                    {action: "endround", buchstabe: $("#buchstabe").text(), gamename: $("#gameName").text(), user: $("#userName").val(), stadt: $("#stadt").val(),
+                        land: $("#land").val(), fluss: $("#fluss").val(), name: $("#name").val(), beruf: $("#beruf").val(), pflanze: $("#pflanze").val()}
+            ));
+        };
+
+        var handleRound = function() {
+            sendRound();
+            gameSocket.onmessage = receiveEvent;
+        };
+
+        $("#endround").click(function() {
+            handleRound();
+            replaceEndTableRow();
+            newTableRow();
+        });
+
+        // -----------------------------------------------------
+        // Start
+        // -----------------------------------------------------           
+        var sendStart = function() {
+            gameSocket.send(JSON.stringify(
+                    {action: "startGame", gamename: $("#gameName").text(), user: $("#userName").val()}));
+        };
+
+        var starthandle = function() {
+            sendStart();
+            gameSocket.onmessage = receiveEvent;
+        };
+
+        window.setTimeout(starthandle, 5000); // 5 seconds
+
+    });
+</script>
+}

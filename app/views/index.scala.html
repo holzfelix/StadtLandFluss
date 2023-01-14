@@ -1,0 +1,44 @@
+@(message: String)
+
+@import helper._
+
+@main("Stadt Land Fluss") {
+
+<div class="row">
+    <div class="col-md-12">
+        <h1>@message</h1>
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-6">
+        <h2>Login</h2>
+        <form action="@routes.Application.initGame()">
+            <br>
+            <input class="form-control" name="gameName" type="text" placeholder="Spielname" required><br>
+            <input class="form-control" name="userName" type="text" placeholder="Username" required>
+            <br>
+            <input class="btn btn-success" type="submit" value="Start">
+        </form>
+    </div>
+    <div class="col-md-6">
+        <h2>Spielregeln</h2>
+        <ul>
+            <li>Beliebige Spieleranzahl</li>
+            <li>Sei der Erste der alle Begriffe hat</li>
+            <li>Ausgefallene Begriffe werden mit extra Punkten belohnt.</li>
+            <li>Der Anfangsbuchstabe wird durch das  System per “Zufall” ausgewählt und angezeigt.</li>
+            <li>Das Spiel gewinnt der Spieler mit den meisten Punkten</li>
+        </ul>
+
+        <h3> Punkteverteilung </h3>
+        <ul>
+            <li>20 Punkte, wenn du der Einzige mit Lösung bist</li>
+            <li>10 Punkte für einzigartige korrekte Lösungen</li>
+            <li>5 Punkte für korrekte Ergebnisse.</li>
+        </ul>
+
+        <a class="rulesclick" href="#">... Lesen Sie die kompletten Regeln</a>
+        
+    </div>
+</div>
+}
